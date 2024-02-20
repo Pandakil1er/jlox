@@ -84,7 +84,10 @@ class Scanner {
             case '/':
                 if (match('/')){
                     while (peek() != '\n' && !isAtEnd()) advance();
+                }else if (match('*')){
+                    blockComment();
                 }
+                
                 else {
                     addToken(SLASH);
                 }
@@ -127,6 +130,21 @@ class Scanner {
         if (type == null) type = IDENTIFIER;
 
         addToken(type);
+    }
+
+    private void blockComment(){
+        while(peek()!='*' && peekNext()!='/' && !isAtEnd()){
+            if (peek() == '\n') line++;
+            advance();
+        }
+        if (isAtEnd()){
+            lox.error(line, "unterminated block comment");
+            return;
+        }
+
+        advance();
+        advance();
+
     }
 
     private void number(){
