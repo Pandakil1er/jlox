@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class lox {
+public class Lox {
 
     static boolean hadError = false;
 
@@ -51,16 +51,30 @@ public class lox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
-        // just print tokens
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
 
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        if (hadError) return;
 
+        System.out.println(new AstPrinter().print(expression));
     }
 
+    static void error(Token token, String message) {
+
+      if (token.type == TokenType.EOF){
+            report(token.line, "at end", message);
+        } else {
+            report(token.line, "at '" + token.lexeme + "'", message);
+
+        }
+    }
     static void error(int line, String message) {
-        report(line, "", message);
+
+     
+            report(line,"", message);
+     
+
+        
     }
 
     private static void report(int line, String where, String message) {

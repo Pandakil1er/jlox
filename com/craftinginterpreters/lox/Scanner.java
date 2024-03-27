@@ -112,7 +112,7 @@ class Scanner {
                     }
                 else {
 
-                    lox.error(line,"Unexpected character.");
+                    Lox.error(line,"Unexpected character.");
                 }
                 break;
 
@@ -150,7 +150,7 @@ class Scanner {
             advance();
         }
         if (isAtEnd()){
-            lox.error(line, "unterminated string");
+            Lox.error(line, "unterminated string");
             return;
         }
         
