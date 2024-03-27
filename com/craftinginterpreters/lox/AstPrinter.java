@@ -42,7 +42,8 @@ public class AstPrinter implements Expr.Visitor<String> {
     return builder.toString();
   }
 
-    public static void main(String[] args) {
+    // Ast printer use
+     public static void main(String[] args) {
     Expr expression = new Expr.Binary(
         new Expr.Unary(
             new Token(TokenType.MINUS, "-", null, 1),
@@ -52,6 +53,6 @@ public class AstPrinter implements Expr.Visitor<String> {
             new Expr.Literal(45.67)));
 
     System.out.println(new AstPrinter().print(expression));
-  }
+   }
 
 }
