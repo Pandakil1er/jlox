@@ -37,10 +37,14 @@ public class Parser {
     }
 
     private Stmt statement() {
+        if (match(FUN))
+            return function("function");
         if (match(IF))
             return ifStatement();
         if (match(PRINT))
             return printStatement();
+        if (match(RETURN))
+            return returnStatement();
         if (match(FOR))
             return forStatement();
         if (match(WHILE))
@@ -49,6 +53,38 @@ public class Parser {
             return new Stmt.Block(block());
 
         return expressionStatement();
+    }
+
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        if(!check(SEMICOLON)){
+            value = expression();
+        }
+        consume(SEMICOLON,"Expect ';' after return value");
+        return new Stmt.Return(keyword,value);
+    }
+
+    private Stmt.Function function(String kind) {
+        Token name = consume(IDENTIFIER,"Expect" + kind + "name.");
+        consume(LEFT_PAREN,"Expect '(' after" + kind + "name.");
+        List<Token> parameters = new ArrayList<>();
+        if(!check(RIGHT_PAREN)){
+            do {
+                if (parameters.size()>=255){
+                    error(peek(),"Expect at most 255 parameters");
+                }
+                parameters.add(consume(IDENTIFIER,"expect parameter name"));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN,"Expect ')' after parameters");
+        consume(LEFT_BRACE,"Expect '{ before "+kind+" body.");
+        List<Stmt> body = block();
+
+        return new Stmt.Function(name, parameters, body);
+
+
+
     }
 
     private Stmt ifStatement() {

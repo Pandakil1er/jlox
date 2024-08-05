@@ -47,6 +47,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitFunctionStmt(Stmt.Function stmt) {
+        LoxFunction function = new LoxFunction(stmt,enviroment);
+        enviroment.define(stmt.name.lexeme,function);
+        return null;
+    }
+
     void executeBlock(List<Stmt> statements, Enviroment enviroment) {
         Enviroment previous = this.enviroment;
         try {
@@ -73,6 +80,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         return object.toString();
 
+    }
+
+    @Override
+    public Void visitReturnStmt(Stmt.Return stmt){
+        Object value = null;
+        if (stmt.value!=null) value = evaluate(stmt.value);
+        throw new Return(value);
     }
 
     @Override
