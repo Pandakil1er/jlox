@@ -3,12 +3,15 @@ package com.craftinginterpreters.lox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import static com.craftinginterpreters.lox.TokenType.*;
 
 public class Parser {
 
     private static class ParseError extends RuntimeException {
-    };
+    }
+
+    ;
 
     private final List<Token> tokens;
     private int current = 0;
@@ -36,7 +39,20 @@ public class Parser {
         }
     }
 
+    private Stmt classDeclaration() {
+        Token name = consume(IDENTIFIER, "Expected Class Name.");
+        consume(LEFT_BRACE, "Expect '{' after Class Name");
+        List<Stmt.Function> methods = new ArrayList<>();
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function("method"));
+        }
+        consume(RIGHT_BRACE, "Expect '}' after Method");
+        return new Stmt.Class(name, methods);
+    }
+
     private Stmt statement() {
+        if (match(CLASS))
+            return classDeclaration();
         if (match(FUN))
             return function("function");
         if (match(IF))
@@ -58,31 +74,30 @@ public class Parser {
     private Stmt returnStatement() {
         Token keyword = previous();
         Expr value = null;
-        if(!check(SEMICOLON)){
+        if (!check(SEMICOLON)) {
             value = expression();
         }
-        consume(SEMICOLON,"Expect ';' after return value");
-        return new Stmt.Return(keyword,value);
+        consume(SEMICOLON, "Expect ';' after return value");
+        return new Stmt.Return(keyword, value);
     }
 
     private Stmt.Function function(String kind) {
-        Token name = consume(IDENTIFIER,"Expect" + kind + "name.");
-        consume(LEFT_PAREN,"Expect '(' after" + kind + "name.");
+        Token name = consume(IDENTIFIER, "Expect" + kind + "name.");
+        consume(LEFT_PAREN, "Expect '(' after" + kind + "name.");
         List<Token> parameters = new ArrayList<>();
-        if(!check(RIGHT_PAREN)){
+        if (!check(RIGHT_PAREN)) {
             do {
-                if (parameters.size()>=255){
-                    error(peek(),"Expect at most 255 parameters");
+                if (parameters.size() >= 255) {
+                    error(peek(), "Expect at most 255 parameters");
                 }
-                parameters.add(consume(IDENTIFIER,"expect parameter name"));
+                parameters.add(consume(IDENTIFIER, "expect parameter name"));
             } while (match(COMMA));
         }
-        consume(RIGHT_PAREN,"Expect ')' after parameters");
-        consume(LEFT_BRACE,"Expect '{ before "+kind+" body.");
+        consume(RIGHT_PAREN, "Expect ')' after parameters");
+        consume(LEFT_BRACE, "Expect '{ before " + kind + " body.");
         List<Stmt> body = block();
 
         return new Stmt.Function(name, parameters, body);
-
 
 
     }
@@ -194,6 +209,9 @@ public class Parser {
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
+            } else if (expr instanceof Expr.Set) {
+                Expr.Get get = (Expr.Get) expr;
+                return new Expr.Set(get.object, get.name, value);
             }
             error(equals, "Invalid Assignment target");
         }
@@ -275,6 +293,9 @@ public class Parser {
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
+            } else if (match(DOT)) {
+                Token name = consume(IDENTIFIER, "Expect Property name after '.' ");
+                expr = new Expr.Get(expr, name);
             } else {
                 break;
             }
@@ -307,6 +328,9 @@ public class Parser {
 
         if (match(STRING, NUMBER)) {
             return new Expr.Literal(previous().literal);
+        }
+        if (match(THIS)) {
+            return new Expr.This(previous());
         }
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
