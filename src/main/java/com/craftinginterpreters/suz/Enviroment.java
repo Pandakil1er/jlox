@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,11 +30,11 @@ class Enviroment {
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "''.");
     }
 
-    Object getAt(int distance,String name) {
+    Object getAt(int distance, String name) {
         return ancestor(distance).values.get(name);
     }
 
-    void assignAt(int distance,Token name,Object value) {
+    void assignAt(int distance, Token name, Object value) {
         ancestor(distance).values.put(name.lexeme, value);
     }
 

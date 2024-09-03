@@ -1,8 +1,8 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 import java.util.List;
 
-interface LoxCallable {
+interface SuzCallable {
     int arity();
 
     Object call(Interpreter interpreter, List<Object> arguments);

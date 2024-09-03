@@ -1,10 +1,10 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.craftinginterpreters.lox.TokenType.*;
+import static com.craftinginterpreters.suz.TokenType.*;
 
 public class Parser {
 
@@ -41,13 +41,18 @@ public class Parser {
 
     private Stmt classDeclaration() {
         Token name = consume(IDENTIFIER, "Expected Class Name.");
+        Expr.Variable superclass = null;
+        if (match(LESS)) {
+            consume(IDENTIFIER, "Expect Superclass name");
+            superclass = new Expr.Variable(previous());
+        }
         consume(LEFT_BRACE, "Expect '{' after Class Name");
         List<Stmt.Function> methods = new ArrayList<>();
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
             methods.add(function("method"));
         }
         consume(RIGHT_BRACE, "Expect '}' after Method");
-        return new Stmt.Class(name, methods);
+        return new Stmt.Class(name, superclass, methods);
     }
 
     private Stmt statement() {
@@ -329,6 +334,12 @@ public class Parser {
         if (match(STRING, NUMBER)) {
             return new Expr.Literal(previous().literal);
         }
+        if (match(SUPER)) {
+            Token keyword = previous();
+            consume(DOT, "Expect '.' after super.");
+            Token method = consume(IDENTIFIER, "Expect superclass method name");
+            return new Expr.Super(keyword, method);
+        }
         if (match(THIS)) {
             return new Expr.This(previous());
         }
@@ -354,7 +365,7 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        Lox.error(token, message);
+        Suz.error(token, message);
         return new ParseError();
     }
 

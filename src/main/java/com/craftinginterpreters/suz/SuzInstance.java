@@ -1,13 +1,13 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 import java.util.Map;
 import java.util.HashMap;
 
-class LoxInstance {
-    private LoxClass klass;
+class SuzInstance {
+    private SuzClass klass;
     private final Map<String, Object> fields = new HashMap<>();
 
-    LoxInstance(LoxClass klass) {
+    SuzInstance(SuzClass klass) {
         this.klass = klass;
     }
 
@@ -15,7 +15,7 @@ class LoxInstance {
         if (fields.containsKey(name.lexeme)) {
             return fields.get(name.lexeme);
         }
-        LoxFunction method = klass.findMethod(name.lexeme);
+        SuzFunction method = klass.findMethod(name.lexeme);
         if (method != null) return method.bind(this);
 
         throw new RuntimeError(name, "Undefined Property: '" + name.lexeme + "'.");

@@ -1,22 +1,26 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class LoxClass implements LoxCallable {
+class SuzClass implements SuzCallable {
     final String name;
+    final SuzClass superclass;
 
-    private final Map<String, LoxFunction> methods;
+    private final Map<String, SuzFunction> methods;
 
-    LoxClass(String name, Map<String, LoxFunction> methods) {
+    SuzClass(String name, SuzClass superclass, Map<String, SuzFunction> methods) {
+        this.superclass = superclass;
         this.methods = methods;
         this.name = name;
     }
 
-    LoxFunction findMethod(String name) {
+    SuzFunction findMethod(String name) {
         if (methods.containsKey(name)) {
             return methods.get(name);
+        }
+        if (superclass != null) {
+            return superclass.findMethod(name);
         }
         return null;
     }
@@ -28,7 +32,7 @@ class LoxClass implements LoxCallable {
 
     @Override
     public int arity() {
-        LoxFunction initializer = findMethod("init");
+        SuzFunction initializer = findMethod("init");
         if (initializer == null) {
             return 0;
         }
@@ -38,8 +42,8 @@ class LoxClass implements LoxCallable {
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        LoxInstance instance = new LoxInstance(this);
-        LoxFunction initializer = findMethod("init");
+        SuzInstance instance = new SuzInstance(this);
+        SuzFunction initializer = findMethod("init");
         if (initializer != null) {
             initializer.bind(instance).call(interpreter, arguments);
         }

@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Map<Expr, Integer> locals = new HashMap<>();
 
     Interpreter() {
-        globals.define("clock", new LoxCallable() {
+        globals.define("clock", new SuzCallable() {
             @Override
             public int arity() {
                 return 0;
@@ -35,7 +35,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 execute(statement);
             }
         } catch (RuntimeError e) {
-            Lox.runtimeError(e);
+            Suz.runtimeError(e);
 
         }
     }
@@ -56,21 +56,37 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt, enviroment);
+        SuzFunction function = new SuzFunction(stmt, enviroment, false);
         enviroment.define(stmt.name.lexeme, function);
         return null;
     }
 
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
+        Object superclass = null;
+        if (stmt.superclass != null) {
+            superclass = evaluate(stmt.superclass);
+            if (!(superclass instanceof SuzClass)) {
+                throw new RuntimeError(stmt.superclass.name, "Superclass must be a suz class");
+            }
+        }
         enviroment.define(stmt.name.lexeme, null);
-        Map<String, LoxFunction> methods = new HashMap<>();
+        if (stmt.superclass != null) {
+            enviroment = new Enviroment(enviroment);
+            enviroment.define("super", superclass);
+        }
+        Map<String, SuzFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-            LoxFunction function = new LoxFunction(method, enviroment, method.name.lexeme.equals("init"));
+            SuzFunction function = new SuzFunction(method, enviroment, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, function);
         }
 
-        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+        SuzClass klass = new SuzClass(stmt.name.lexeme, (SuzClass) superclass, methods);
+
+        if (stmt.superclass != null) {
+            enviroment = enviroment.enclosing;
+        }
+
         enviroment.assign(stmt.name, klass);
         return null;
     }
@@ -78,10 +94,27 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitSetExpr(Expr.Set expr) {
         Object object = evaluate(expr.object);
-        if (!(object instanceof LoxInstance)) throw new RuntimeError(expr.name, "Only instances have fields");
+        if (!(object instanceof SuzInstance)) throw new RuntimeError(expr.name, "Only instances have fields");
         Object value = evaluate(expr.value);
-        ((LoxInstance) object).set(expr.name, value);
+        ((SuzInstance) object).set(expr.name, value);
         return value;
+    }
+
+    @Override
+    public Object visitSuperExpr(Expr.Super expr) {
+        int distance = locals.get(expr);
+        SuzClass superclass = (SuzClass) enviroment.getAt(distance, "super");
+
+        SuzInstance object = (SuzInstance) enviroment.getAt(distance - 1, "this");
+
+        SuzFunction method = superclass.findMethod(expr.method.lexeme);
+
+        if (method == null) {
+            throw new RuntimeError(expr.method, "Undefined property '" + expr.method.lexeme + "'.");
+        }
+
+        return method.bind(object);
+
     }
 
     @Override
@@ -214,11 +247,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         for (Expr argument : expr.arguments) {
             arguments.add(evaluate(argument));
         }
-        if (!(callee instanceof LoxCallable)) {
+        if (!(callee instanceof SuzCallable)) {
             throw new RuntimeError(expr.paren, "Can only call function and classes.");
         }
 
-        LoxCallable function = (LoxCallable) callee;
+        SuzCallable function = (SuzCallable) callee;
 
         if (arguments.size() != function.arity()) {
             throw new RuntimeError(expr.paren,
@@ -232,8 +265,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitGetExpr(Expr.Get expr) {
         Object object = evaluate(expr.object);
-        if (object instanceof LoxInstance) {
-            return (((LoxInstance) object).get(expr.name));
+        if (object instanceof SuzInstance) {
+            return (((SuzInstance) object).get(expr.name));
         }
         throw new RuntimeError(expr.name, "only instances have properties.");
     }

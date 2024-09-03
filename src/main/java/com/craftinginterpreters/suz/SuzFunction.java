@@ -1,22 +1,22 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 import java.util.List;
 
-public class LoxFunction implements LoxCallable {
+public class SuzFunction implements SuzCallable {
     private final Stmt.Function declaration;
     private final Enviroment closure;
     private final boolean isInitializer;
 
-    LoxFunction(Stmt.Function declaration, Enviroment closure, boolean isInitializer) {
+    SuzFunction(Stmt.Function declaration, Enviroment closure, boolean isInitializer) {
         this.isInitializer = isInitializer;
         this.declaration = declaration;
         this.closure = closure;
     }
 
-    LoxFunction bind(LoxInstance instance) {
+    SuzFunction bind(SuzInstance instance) {
         Enviroment enviroment = new Enviroment(closure);
         enviroment.define("this", instance);
-        return new LoxFunction(declaration, enviroment, isInitializer);
+        return new SuzFunction(declaration, enviroment, isInitializer);
     }
 
 

@@ -1,9 +1,10 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.suz;
 
 class Return extends RuntimeException {
     final Object value;
+
     Return(Object value) {
-        super(null,null,false,false);
+        super(null, null, false, false);
         this.value = value;
     }
 }

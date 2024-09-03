@@ -22,6 +22,7 @@ public class GenerateAst {
                         "Get :Expr object,Token name",
                         "Set :Expr object,Token name,Expr value",
                         "This :Token keyword",
+                        "Super :Token keyword,Token method",
                         "Call :Expr callee,Token paren,List<Expr> arguments",
                         "Variable : Token name"));
         defineAst(outputDir, "Stmt",
@@ -29,7 +30,7 @@ public class GenerateAst {
                         "While : Expr condition,Stmt body",
                         "Expression : Expr expression",
                         "Function : Token name,List<Token> params," + "List<Stmt> body",
-                        "Class : Token name,List<Stmt.Function> methods",
+                        "Class : Token name,Expr.Variable superclass," + "List<Stmt.Function> methods",
 
                         "If : Expr condition,Stmt thenBranch," + "Stmt elseBranch",
                         "Return : Token keyword,Expr value",
@@ -40,7 +41,7 @@ public class GenerateAst {
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
         String path = outputDir + "/" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, "UTF-8");
-        writer.println("package com.craftinginterpreters.lox;");
+        writer.println("package com.craftinginterpreters.suz;");
         writer.println();
         writer.println("import java.util.List;");
         writer.println();
