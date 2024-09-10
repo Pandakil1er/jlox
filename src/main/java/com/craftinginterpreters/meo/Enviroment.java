@@ -1,4 +1,4 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.HashMap;
 import java.util.Map;

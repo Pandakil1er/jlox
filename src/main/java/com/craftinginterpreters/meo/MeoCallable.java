@@ -1,8 +1,8 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.List;
 
-interface SuzCallable {
+interface MeoCallable {
     int arity();
 
     Object call(Interpreter interpreter, List<Object> arguments);

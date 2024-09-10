@@ -1,11 +1,11 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.craftinginterpreters.suz.TokenType.*;
+import static com.craftinginterpreters.meo.TokenType.*;
 
 
 class Scanner {
@@ -132,7 +132,7 @@ class Scanner {
                     identifier();
                 } else {
 
-                    Suz.error(line, "Unexpected character.");
+                    Meo.error(line, "Unexpected character.");
                 }
                 break;
 
@@ -170,7 +170,7 @@ class Scanner {
             advance();
         }
         if (isAtEnd()) {
-            Suz.error(line, "unterminated string");
+            Meo.error(line, "unterminated string");
             return;
         }
 

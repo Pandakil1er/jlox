@@ -1,21 +1,21 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.List;
 import java.util.Map;
 
-class SuzClass implements SuzCallable {
+class MeoClass implements MeoCallable {
     final String name;
-    final SuzClass superclass;
+    final MeoClass superclass;
 
-    private final Map<String, SuzFunction> methods;
+    private final Map<String, MeoFunction> methods;
 
-    SuzClass(String name, SuzClass superclass, Map<String, SuzFunction> methods) {
+    MeoClass(String name, MeoClass superclass, Map<String, MeoFunction> methods) {
         this.superclass = superclass;
         this.methods = methods;
         this.name = name;
     }
 
-    SuzFunction findMethod(String name) {
+    MeoFunction findMethod(String name) {
         if (methods.containsKey(name)) {
             return methods.get(name);
         }
@@ -32,7 +32,7 @@ class SuzClass implements SuzCallable {
 
     @Override
     public int arity() {
-        SuzFunction initializer = findMethod("init");
+        MeoFunction initializer = findMethod("init");
         if (initializer == null) {
             return 0;
         }
@@ -42,8 +42,8 @@ class SuzClass implements SuzCallable {
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        SuzInstance instance = new SuzInstance(this);
-        SuzFunction initializer = findMethod("init");
+        MeoInstance instance = new MeoInstance(this);
+        MeoFunction initializer = findMethod("init");
         if (initializer != null) {
             initializer.bind(instance).call(interpreter, arguments);
         }

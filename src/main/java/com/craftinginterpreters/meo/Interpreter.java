@@ -1,4 +1,4 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Map<Expr, Integer> locals = new HashMap<>();
 
     Interpreter() {
-        globals.define("clock", new SuzCallable() {
+        globals.define("clock", new MeoCallable() {
             @Override
             public int arity() {
                 return 0;
@@ -35,7 +35,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 execute(statement);
             }
         } catch (RuntimeError e) {
-            Suz.runtimeError(e);
+            Meo.runtimeError(e);
 
         }
     }
@@ -56,7 +56,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        SuzFunction function = new SuzFunction(stmt, enviroment, false);
+        MeoFunction function = new MeoFunction(stmt, enviroment, false);
         enviroment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -66,8 +66,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object superclass = null;
         if (stmt.superclass != null) {
             superclass = evaluate(stmt.superclass);
-            if (!(superclass instanceof SuzClass)) {
-                throw new RuntimeError(stmt.superclass.name, "Superclass must be a suz class");
+            if (!(superclass instanceof MeoClass)) {
+                throw new RuntimeError(stmt.superclass.name, "Superclass must be a meo class");
             }
         }
         enviroment.define(stmt.name.lexeme, null);
@@ -75,13 +75,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             enviroment = new Enviroment(enviroment);
             enviroment.define("super", superclass);
         }
-        Map<String, SuzFunction> methods = new HashMap<>();
+        Map<String, MeoFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-            SuzFunction function = new SuzFunction(method, enviroment, method.name.lexeme.equals("init"));
+            MeoFunction function = new MeoFunction(method, enviroment, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, function);
         }
 
-        SuzClass klass = new SuzClass(stmt.name.lexeme, (SuzClass) superclass, methods);
+        MeoClass klass = new MeoClass(stmt.name.lexeme, (MeoClass) superclass, methods);
 
         if (stmt.superclass != null) {
             enviroment = enviroment.enclosing;
@@ -94,20 +94,20 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitSetExpr(Expr.Set expr) {
         Object object = evaluate(expr.object);
-        if (!(object instanceof SuzInstance)) throw new RuntimeError(expr.name, "Only instances have fields");
+        if (!(object instanceof MeoInstance)) throw new RuntimeError(expr.name, "Only instances have fields");
         Object value = evaluate(expr.value);
-        ((SuzInstance) object).set(expr.name, value);
+        ((MeoInstance) object).set(expr.name, value);
         return value;
     }
 
     @Override
     public Object visitSuperExpr(Expr.Super expr) {
         int distance = locals.get(expr);
-        SuzClass superclass = (SuzClass) enviroment.getAt(distance, "super");
+        MeoClass superclass = (MeoClass) enviroment.getAt(distance, "super");
 
-        SuzInstance object = (SuzInstance) enviroment.getAt(distance - 1, "this");
+        MeoInstance object = (MeoInstance) enviroment.getAt(distance - 1, "this");
 
-        SuzFunction method = superclass.findMethod(expr.method.lexeme);
+        MeoFunction method = superclass.findMethod(expr.method.lexeme);
 
         if (method == null) {
             throw new RuntimeError(expr.method, "Undefined property '" + expr.method.lexeme + "'.");
@@ -247,11 +247,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         for (Expr argument : expr.arguments) {
             arguments.add(evaluate(argument));
         }
-        if (!(callee instanceof SuzCallable)) {
+        if (!(callee instanceof MeoCallable)) {
             throw new RuntimeError(expr.paren, "Can only call function and classes.");
         }
 
-        SuzCallable function = (SuzCallable) callee;
+        MeoCallable function = (MeoCallable) callee;
 
         if (arguments.size() != function.arity()) {
             throw new RuntimeError(expr.paren,
@@ -265,8 +265,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitGetExpr(Expr.Get expr) {
         Object object = evaluate(expr.object);
-        if (object instanceof SuzInstance) {
-            return (((SuzInstance) object).get(expr.name));
+        if (object instanceof MeoInstance) {
+            return (((MeoInstance) object).get(expr.name));
         }
         throw new RuntimeError(expr.name, "only instances have properties.");
     }

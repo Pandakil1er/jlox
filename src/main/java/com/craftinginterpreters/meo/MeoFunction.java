@@ -1,22 +1,22 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.List;
 
-public class SuzFunction implements SuzCallable {
+public class MeoFunction implements MeoCallable {
     private final Stmt.Function declaration;
     private final Enviroment closure;
     private final boolean isInitializer;
 
-    SuzFunction(Stmt.Function declaration, Enviroment closure, boolean isInitializer) {
+    MeoFunction(Stmt.Function declaration, Enviroment closure, boolean isInitializer) {
         this.isInitializer = isInitializer;
         this.declaration = declaration;
         this.closure = closure;
     }
 
-    SuzFunction bind(SuzInstance instance) {
+    MeoFunction bind(MeoInstance instance) {
         Enviroment enviroment = new Enviroment(closure);
         enviroment.define("this", instance);
-        return new SuzFunction(declaration, enviroment, isInitializer);
+        return new MeoFunction(declaration, enviroment, isInitializer);
     }
 
 

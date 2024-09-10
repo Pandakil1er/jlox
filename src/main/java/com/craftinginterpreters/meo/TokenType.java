@@ -1,4 +1,4 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 enum TokenType {
     // single character tokens

@@ -1,4 +1,4 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 public class RuntimeError extends RuntimeException {
     final Token token;

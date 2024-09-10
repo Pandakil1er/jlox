@@ -1,4 +1,4 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class Suz {
+public class Meo {
 
     private static final Interpreter interpreter = new Interpreter();
 
@@ -17,7 +17,7 @@ public class Suz {
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
-            System.out.println("Usage: jSuz [script]");
+            System.out.println("Usage: jmeo [script]");
             System.exit(64);
         } else if (args.length == 1) {
             runFile(args[0]);

@@ -1,10 +1,10 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.craftinginterpreters.suz.TokenType.*;
+import static com.craftinginterpreters.meo.TokenType.*;
 
 public class Parser {
 
@@ -365,7 +365,7 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        Suz.error(token, message);
+        Meo.error(token, message);
         return new ParseError();
     }
 

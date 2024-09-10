@@ -1,13 +1,13 @@
-package com.craftinginterpreters.suz;
+package com.craftinginterpreters.meo;
 
 import java.util.Map;
 import java.util.HashMap;
 
-class SuzInstance {
-    private SuzClass klass;
+class MeoInstance {
+    private MeoClass klass;
     private final Map<String, Object> fields = new HashMap<>();
 
-    SuzInstance(SuzClass klass) {
+    MeoInstance(MeoClass klass) {
         this.klass = klass;
     }
 
@@ -15,7 +15,7 @@ class SuzInstance {
         if (fields.containsKey(name.lexeme)) {
             return fields.get(name.lexeme);
         }
-        SuzFunction method = klass.findMethod(name.lexeme);
+        MeoFunction method = klass.findMethod(name.lexeme);
         if (method != null) return method.bind(this);
 
         throw new RuntimeError(name, "Undefined Property: '" + name.lexeme + "'.");
